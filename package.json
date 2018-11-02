@@ -1,12 +1,16 @@
 {
-  "name": "redux-saga",
+  "name": "redux-saga-poc",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
-    "react-scripts": "2.1.1"
+    "react-redux": "^5.1.0",
+    "react-scripts": "2.1.1",
+    "redux": "^4.0.1",
+    "redux-saga": "^0.16.2"
   },
+  "author": "Sathya",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
