@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import './styles.css';
 
@@ -43,4 +44,10 @@ class ImageGrid extends Component {
     }
 }
 
-export default ImageGrid;
+const mapToDefaultProps = ({isLoading,images,error}) => ({
+    isLoading,
+    images,
+    error
+})
+
+export default connect(mapToDefaultProps)(ImageGrid);
