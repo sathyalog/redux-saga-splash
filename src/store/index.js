@@ -12,6 +12,8 @@ const configureStore = () => {
         ),
     );
     sagaMiddleware.run(rootSaga);
+    //dispatching HELLO event to check worker saga functionality. pls check console.
+    store.dispatch({type:'HELLO'})
     return store;
 };
 

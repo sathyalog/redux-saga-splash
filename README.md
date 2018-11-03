@@ -1,44 +1,62 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## What is Redux Saga?
 
-## Available Scripts
+redux-saga is a library that aims to make application side effects (i.e. asynchronous things like data fetching and impure things like accessing the browser cache) easier to manage, more efficient to execute, simple to test, and better at handling failures.
 
-In the project directory, you can run:
+The mental model is that a saga is like a separate thread in your application that's solely responsible for side effects. redux-saga is a redux middleware, which means this thread can be started, paused and cancelled from the main application with normal redux actions, it has access to the full redux application state and it can dispatch redux actions as well.
 
-### `npm start`
+## Why redux-saga?
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Any function cannot be paused in middle and also cannot return more than one return.
+Which means..
+function SayHi() {
+	//statement1
+	//statement2 -> you cannot pause here
+	return ‘hi’;
+	return ‘hello’; -> this will not execute in normal functions as with return ‘hi’ the scope will move out of function
+}
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+**Generators** will help us to go beyond the normal functions
 
-### `npm test`
+With ES6, we have been introduced with a special type of functions called generators. With generators, the functions can be paused in the middle multiple times and resumed later which allows other codes to run in between.
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Inside the generator function, we use a special keyword called yield which is used to pause the function inside itself.
 
-### `npm run build`
+So, a generator function can be stopped and restarted as many times as we like.With normal functions, we get parameters in the beginning and a return statement in the end. With generator functions, you send messages out with each yield, and you send messages back in with each restart.
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The syntax of generator function is like this —
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+function* abc()
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+// code here
 
-### `npm run eject`
+}
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Saga Helpers
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+redux-saga provides some helper effects wrapping internal functions to spawn tasks when some specific actions are dispatched to the Store.
+The first function, takeEvery is the most familiar and provides a behavior similar to redux-thunk.
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Let's illustrate with the common AJAX example. On each click on a Fetch button we dispatch a FETCH_REQUESTED action. We want to handle this action by launching a task that will fetch some data from the server.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+First we create the task that will perform the asynchronous action:
 
-## Learn More
+import { call, put } from 'redux-saga/effects'
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+export function* fetchData(action) {
+   try {
+      const data = yield call(Api.fetchUser, action.payload.url)
+      yield put({type: "FETCH_SUCCEEDED", data})
+   } catch (error) {
+      yield put({type: "FETCH_FAILED", error})
+   }
+}
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+To launch the above task on each FETCH_REQUESTED action:
+
+import { takeEvery } from 'redux-saga/effects'
+
+function* watchFetchData() {
+  yield takeEvery('FETCH_REQUESTED', fetchData)
+}
+
+In the above example, takeEvery allows multiple fetchData instances to be started concurrently. At a given moment, we can start a new fetchData task while there are still one or more previous fetchData tasks which have not yet terminated.
