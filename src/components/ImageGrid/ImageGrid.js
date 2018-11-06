@@ -11,7 +11,7 @@ class ImageGrid extends Component {
     }
 
     render() {
-        const { images } = this.props;
+        const { images, error, isLoading, loadImages } = this.props;
         return (
             <div className="content">
                 <section className="grid">
@@ -30,7 +30,10 @@ class ImageGrid extends Component {
                     ))}
                     
                 </section>
-                <button onClick={() => loadImages()}>Load Images</button>
+                <button 
+                onClick={() => !isLoading && loadImages()}
+                loading={isLoading}>Load Images</button>
+                {error && <div className="error">{JSON.stringlify(error)}</div>}
             </div>
         );
     }
